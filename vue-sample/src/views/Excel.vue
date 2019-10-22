@@ -1,3 +1,10 @@
+/*前端读取excel文件内容，将数据导出到excel中
+	参考：http://blog.haoji.me/js-excel.html
+ * @Author: zzh0211@live.com
+ * @Date: 2019-10-22 18:46:52
+ * @Last Modified by: zzh0211@live.com
+ * @Last Modified time: 2019-10-22 18:47:23
+ */
 <template>
 	<div class="excel-wrapper">
 		<h3>下载excel</h3>
