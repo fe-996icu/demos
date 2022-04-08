@@ -109,6 +109,9 @@
 <!--
 	断点续传
 
+	计算大文件hash时，使用WebWorker去加载一个js来计算hash值，避免阻塞主进程。
+	或者使用 requestIdleCallback 在空闲时间来计算hash值。
+
 	客户端
 	1、 获取文件md5、sha1、fileSize
 	2、 调接口检查文件是否已经存在服务器
