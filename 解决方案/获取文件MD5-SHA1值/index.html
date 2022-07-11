@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>获取文件对象的md5和sha1值</title>
+
+	<link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.1/css/bootstrap.min.css" rel="stylesheet">
+
+	<!--
+		npm i crypto-js -S
+		https://www.npmjs.com/package/crypto-js
+	-->
+	<script src="./libs/crypto-js.js"></script>
+	<!--
+		npm i spark-md5 -S
+		https://www.npmjs.com/package/spark-md5
+	-->
+	<script src="./libs/spark-md5.js"></script>
+
+	<script src="./js/utils.js"></script>
+</head>
+<body style="padding: 20px;">
+	<div class="alert alert-warning">打开Chrome开发者工具，查看Console面板</div>
+	<div class="alert alert-warning">获取md5值 spark-md5 效率更高一些</div>
+
+	<input type="file" id="file" />
+
+	<br>
+	<br>
+
+	<div>
+		<button class="btn btn-danger" onclick="onSparkMd5BinaryString()">查看md5【spark-md5】-【binarystring】</button>
+		<button class="btn btn-primary" onclick="onSparkMd5ArrayBuffer()">查看md5【spark-md5】-【arraybuffer】</button>
+
+		<button class="btn btn-info" onclick="onCryptoMd5()">查看md5【crypto-js】-【arraybuffer】</button>
+		<button class="btn btn-info" onclick="onCryptoSha1()">查看sha1【crypto-js】-【arraybuffer】</button>
+	</div>
+
+	<script type="text/javascript">
+		function getFile(){
+			var file = document.getElementById("file").files[0]
+
+			if(!file){
+				alert('先选一个文件');
+				return;
+			}
+
+			return file;
+		}
+
+		async function onSparkMd5BinaryString(){
+			var file = getFile();
+			if(!file){
+				return;
+			}
+
+			// 通过spark-md5获取
+			var md5Spark = await getMD5CodeOfSparkMD5(file);
+			var md5SplitSpark = await getMD5CodeSplitOfSparkMD5(file);
+
+			console.log('md5【spark-md5】:', md5Spark);
+			console.log('md5-split【spark-md5】:', md5SplitSpark);
+		}
+		async function onSparkMd5ArrayBuffer(){
+			var file = getFile();
+			if(!file){
+				return;
+			}
+
+			// 通过spark-md5获取
+			var md5Spark = await getMD5CodeOfSparkMD5ArrayBuffer(file);
+			var md5SplitSpark = await getMD5CodeSplitOfSparkMD5ArrayBuffer(file);
+
+			console.log('md5【spark-md5】:', md5Spark);
+			console.log('md5-split【spark-md5】:', md5SplitSpark);
+		}
+		async function onCryptoMd5(){
+			var file = getFile();
+			if(!file){
+				return;
+			}
+
+			// 通过crypto-js获取
+			var md5Crypto = await getMD5CodeOfCryptoJS(file);
+			var md5SplitCrypto = await getMD5CodeSplitOfCryptoJS(file);
+
+			console.log('md5【crypto-js】:', md5Crypto);
+			console.log('md5-split【crypto-js】:', md5SplitCrypto);
+		}
+		async function onCryptoSha1(){
+			var file = getFile();
+			if(!file){
+				return;
+			}
+
+			// 通过crypto-js获取
+			var sha1Crypto = await getSHA1CodeOfCryptoJS(file);
+			var sha1SplitCrypto = await getSHA1CodeSplitOfCryptoJS(file);
+
+			console.log('sha1:【crypto-js】', sha1Crypto);
+			console.log('sha1-split:【crypto-js】', sha1SplitCrypto);
+		}
+	</script>
+</body>
+</html>
+
+<!--
+	断点续传示例：
+	https://github.com/shengxinjing/file-upload
+
+	断点续传
+
+	计算大文件hash时，使用WebWorker去加载一个js来计算hash值，避免阻塞主进程。
+	或者使用 requestIdleCallback 在空闲时间来计算hash值。
+
+	客户端
+	1、 获取文件md5、sha1、fileSize
+	2、 调接口检查文件是否已经存在服务器
+		接口返回存在，前端提示秒传成功
+		接口返回不存在，接口返回已上传完成的chunk分割文件列表
+	3、 对文件进行分割处理`file.slice(start, end)`，生成chunk文件列表，然后对比服务端返回的chunk文件列表，将未上传部分的chunk文件列表进行上传
+	4、 所有chunk文件都上传完成后，调用服务端合并chunk文件的接口
+
+	服务器端
+	1、 check检查文件是否存在的接口
+		通过客户端传过来的md5、sha1、fileSize检查文件是否已存在服务器上
+		如果存在，返回结果
+		如果不存在，查询服务器端上已上传过的chunk切片文件列表
+	2、 上传文件接口
+		接收参数：文件名、文件对象、hash值（md5、sha1）、
+		通过hash查询文件夹是否存在，不存在就创建
+		检查切片文件是否存在，如果存在就忽略或报错
+		切片文件不存在，就将上传的切片文件移动到对应的chunk文件夹内
+	3、 合并chunk文件的接口
+		接收参数：文件名、hash、chunkFileSize（每个切片文件的大小）
+		通过hash检查chunk文件夹是否存在
+			不存在就报错
+			存在就读取hash文件夹内所有chunk文件，然后创建文件流将所有chunk文件连接起来，连接的时候使用chunkFileSize计算每个chunk文件对应文件流数据中的位置
+		合并成功后返回结果
+
+ -->
