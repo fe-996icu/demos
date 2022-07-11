@@ -44,5 +44,19 @@ window.onload = function () {
             console.log(e);
         }, {password: password});
 
-    };
+	};
+
+	document.getElementById('exportPdf').onclick = function(){
+		spread.savePDF(function(blob){
+			console.log(blob);
+			// saveAs(blob, fileName);
+			window.open(URL.createObjectURL(blob));
+
+			var file = new File([blob], '文件名.xlsx', {
+				type: blob.type,
+			});
+		}, function(err){
+			console.error(err);
+		})
+	};
 };

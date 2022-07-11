@@ -1,0 +1,9 @@
+{
+	"name": "connect-mongodb-by-mongoose",
+	"version": "1.0.0",
+	"main": "introduction.js",
+	"license": "MIT",
+	"dependencies": {
+		"mongoose": "^5.8.2"
+	}
+}
