@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
+<body>
+	<canvas width="256px" height="100px" id="canvas"></canvas>
+	<audio src="./sounds/周杰伦 - 夜曲.mp3" controls id="audio"></audio>
+
+	<p>浏览器限制，必须手动播放</p>
+	<p>vudio存在一个问题，音频播放完毕后，还继续调用 requestAnimationFrame</p>
+
+	<p>
+		<a href="https://github.com/alex2wong/vudio.js">https://github.com/alex2wong/vudio.js</a>
+	</p>
+	<p>
+		<a href="https://alex2wong.github.io/vudio/">Online Demo： https://alex2wong.github.io/vudio/</a>
+	</p>
+
+	<script src="./node_modules/vudio/vudio.js"></script>
+	<script src="./js/main.js"></script>
+</body>
+</html>

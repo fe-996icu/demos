@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Visualizations with Web Audio API</title>
+
+	<style>
+		*{
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+	</style>
+</head>
+
+<body>
+	<input id="audioFile" type="file" accept="audio/*" />
+
+	<p>
+		通过 Web Audio API 监测声音频率进行可视化展示
+	</p>
+
+	<canvas id="canvas"></canvas>
+
+	<script type="text/javascript">
+		const canvas = document.querySelector("#canvas");
+		const inputFile = document.querySelector("#audioFile");
+
+		const canvasWidth = window.innerWidth;
+		const canvasHeight = window.innerHeight;
+		const canvasContext = canvas.getContext("2d");
+		canvas.width = canvasWidth;
+		canvas.height = canvasHeight;
+		let frequencyData = [],
+			bufferLength = 0,
+			analyser;
+
+		inputFile.onchange = function(event){
+			const file = event.target.files[0];
+
+			// 我们使用 FileReader API 来读取音频文件的数据。然后创建一个 AudioContext 对象并使用该对象上的 decodeAudioData 方法解码音频。当然，你也可以从网络上下载音频文件。
+			const reader = new FileReader();
+			reader.readAsArrayBuffer(file);
+			reader.onload = evt=>{
+				const encodedBuffer = evt.currentTarget.result;
+				const context = new AudioContext();
+
+				context.decodeAudioData(encodedBuffer, decodedBuffer=>{
+					const dataSource = context.createBufferSource();
+					dataSource.buffer = decodedBuffer;
+					analyser = createAnalyser(context, dataSource);
+					bufferLength = analyser.frequencyBinCount;
+					frequencyData = new Uint8Array(bufferLength);
+					dataSource.start();
+					drawBar();
+				});
+			};
+
+			// 要获取频率数据，我们需要利用 AnalyserNode 接口，该接口提供实时频率和时域分析信息。
+			function createAnalyser(context, dataSource){
+				const analyser = context.createAnalyser();
+				analyser.fftSize = 512;
+				dataSource.connect(analyser);
+				analyser.connect(context.destination);
+				return analyser;
+			}
+
+			function drawBar(){
+				requestAnimationFrame(drawBar);
+
+				// AnalyserNode 对象上的 getByteFrequencyData() 方法会将当前频率数据复制到传入的 Uint8Array 对象。
+				analyser.getByteFrequencyData(frequencyData);
+				// 获取频率数据后，我们就可以使用 Canvas API 实现数据可视化，比如使用 CanvasRenderingContext2D 接口中的 fillRect 方法，对数据进行可视化。
+				canvasContext.clearRect(0, 0, canvasWidth, canvasHeight);
+				let barHeight, barWidth, r, g, b;
+
+				for(let i = 0, x = 0; i < bufferLength; i++){
+					barHeight = frequencyData[i];
+					barWidth = canvasWidth / bufferLength * 2;
+					r = barHeight + 25 * (i / bufferLength);
+					g = 250 * (i / bufferLength);
+					b = 50;
+					canvasContext.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
+					canvasContext.fillRect(x, canvasHeight - barHeight, barWidth, barHeight);
+					x += barWidth + 2;
+				}
+			}
+		};
+	</script>
+</body>
+
+</html>
